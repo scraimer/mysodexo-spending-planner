@@ -75,13 +75,26 @@ function displayPerDayBudget()
 	var daily = mysodexo_planner['balance'] / workDaysUntilEndOfMonth();
 	
 	var dest = jQuery( jQuery( ".full-name" ).parent()[0].children[3] );
-	dest.append( " / \u20AA" + daily.toFixed(2) + " \u05DC\u05D9\u05D5\u05DD" );
+	//dest.append( " / \u20AA" + daily.toFixed(2) + " \u05DC\u05D9\u05D5\u05DD" );
+	dest.text( "יש לך \u20AA" + mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום" );
 }
 
 function scrapeBalance()
 {
 	var welcome_text = jQuery( ".full-name" ).parent().text();
+	
+	// First attempt: Look for numbers after the "New Israeli Shekel" sign
 	var re = new RegExp( '\u20AA([0-9]+(\.[0-9]+)?)' );
+	var matches = re.exec( welcome_text );
+	if( matches && matches.length >= 2 )
+	{
+		return matches[1];
+	}
+	
+
+	// Second attempt: Look for numbers that look like money:
+	//  1-5 digits, optionally followed by ".", followed by 1-2 digits
+	var re = new RegExp( /\b([0-9]{1,5}(?:\.[0-9]{1,2}))\b/ );
 	var matches = re.exec( welcome_text );
 	if( matches && matches.length >= 2 )
 	{

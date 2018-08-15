@@ -1,6 +1,6 @@
 {
    "name": "Daily Budget of Cibus Sodexo",
-   "version": "0.0.1",
+   "version": "0.0.2",
    "manifest_version" : 2,
 
    "description": "Reports daily balance for Cibus MySodex",
@@ -19,9 +19,9 @@
    "content_scripts": [
       {
          "matches": ["https://www.mysodexo.co.il/*"],
-         "css": ["content.css"],
+         "css": ["content.css", "jquery-ui.min.css"],
          "js": [
-            "jquery-1.8.2.js", "jquery.scrollTo-2.1.2.js",
+            "jquery-1.8.2.js", "jquery-ui.min.js",
             "mysodexo-planner.js"
          ],
          "run_at": "document_start"
