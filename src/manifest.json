@@ -16,6 +16,10 @@
       "https://www.mysodexo.co.il/*",
       "tabs"
    ],
+	"options_ui": {
+    	"page": "options.html",
+    	"open_in_tab": false
+  	},
    "content_scripts": [
       {
          "matches": ["https://www.mysodexo.co.il/*"],
