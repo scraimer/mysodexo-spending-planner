@@ -1,54 +1,97 @@
-// From https://stackoverflow.com/questions/28425132/how-to-calculate-number-of-working-days-between-two-dates-in-javascript-using
+'use strict';
 
-function getNumWorkDays(startDate, endDate) {
-    var numWorkDays = 0;
-    var currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-        // Skips Sunday and Saturday
-        if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-            numWorkDays++;
-        }
-        currentDate = currentDate.addDays(1);
-    }
-    return numWorkDays;
+/////////////////////////////////////////////////////////////////
+
+function DayList( props )
+{
+	this.list = [];
+
+	if( !props ) {
+		// This is an empty list. Do no more.
+		return;
+	}
+
+	/** Convert day names to numbers 0-6, or -1 on error */
+	function DayNameToNumber( name )
+	{
+		if( name === 'Sun' ) { return 0; }
+		if( name === 'Mon' ) { return 1; }
+		if( name === 'Tue' ) { return 2; }
+		if( name === 'Wed' ) { return 3; }
+		if( name === 'Thr' ) { return 4; }
+		if( name === 'Fri' ) { return 5; }
+		if( name === 'Sat' ) { return 6; }
+		return -1;
+	}
+
+	if( !props.startDate ) { throw "Missing startDate"; }
+	if( !props.endDate ) { throw "Missing endDate"; }
+	if( !props.weekend ) { throw "Missing weekend"; }
+	for( let day in props.weekend ) {
+		if( DayNameToNumber( props.weekend[day] ) == -1 ) {
+			throw "Invalid day name: '" + day + "'. Expecting one of: [Sun, Mon, Tue, Wed, Thr, Fri, Sat]";
+		}
+	}
+
+	let weekend = [];
+	for( let day in props.weekend ) {
+		weekend.push( DayNameToNumber( props.weekend[day] ) );
+	}
+
+	/** fill the list with all the days that aren't weekend days */
+
+	this.list = [];
+	// Start 1 milliseconds after midnight
+	//let startDate = new Date( Date.UTC( 1900 + props.startDate.getYear(), props.startDate.getMonth(), props.startDate.getDate(), 0,0,0,1) );
+	let startDate = new Date( Date.UTC( 1900 + props.startDate.getYear(), props.startDate.getMonth(), props.startDate.getDate(), 0,0,0,0) );
+	// End 1 milliseconds before midnight
+	//let endDate = new Date( Date.UTC( 1900 + props.endDate.getYear(), props.endDate.getMonth(), props.endDate.getDate(), 23,59,59,999) );
+	let endDate = new Date( Date.UTC( 1900 + props.endDate.getYear(), props.endDate.getMonth(), props.endDate.getDate(), 0,0,0,0) );
+
+   const millisecondsPerDay = 60 * 60 * 24 * 1000;
+	for( var date = startDate; endDate - date > 0; date = new Date( date.valueOf() + millisecondsPerDay )) {
+		let day = date.getDay();
+		if( weekend.indexOf( day ) != -1 ) {
+			continue;
+		}
+		this.add( date.valueOf() );
+	}
 }
 
-// From http://partialclass.blogspot.com/2011/07/calculating-working-days-between-two.html
+DayList.prototype.length = function() {
+	return this.list.length;
+};
 
-function workingDaysBetweenDates(startDate, endDate) {
-  
-    // Validate input
-    if (endDate < startDate)
-        return 0;
-    
-    // Calculate days between dates
-    var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
-    startDate.setHours(0,0,0,1);  // Start just after midnight
-    endDate.setHours(23,59,59,999);  // End just before midnight
-    var diff = endDate - startDate;  // Milliseconds between datetime objects    
-    var days = Math.ceil(diff / millisecondsPerDay);
-    
-    // Subtract two weekend days for every week in between
-    var weeks = Math.floor(days / 7);
-    days = days - (weeks * 2);
+DayList.prototype.toJSON = function() {
+	return this.list;
+};
 
-    // Handle special cases
-    var startDay = startDate.getDay();
-    var endDay = endDate.getDay();
-    
-    // Remove weekend not previously removed.   
-    if (startDay - endDay > 1)         
-        days = days - 2;      
-    
-    // Remove start day if span starts on Saturday but ends before Friday
-    if (startDay == 6 && endDay != 5)
-        days = days - 1  
-            
-    // Remove end day if span ends on Friday but starts after Saturday
-    if (endDay == 5 && startDay != 6)
-        days = days - 1  
-    
-    return days;
+DayList.prototype.removeDays = function( other ) {
+	this.list = this.list.filter( day => (other.list.indexOf( day ) == -1) );
+}
+
+DayList.prototype.add = function( date ) {
+	var val = new Date(date).valueOf()
+   const millisecondsPerDay = 60 * 60 * 24 * 1000;
+	this.list.push( val - (val % millisecondsPerDay ) );
+}
+
+function loadVacationDays()
+{
+	// TODO: load from localStorage or an ICS file
+	var vacation = new DayList();
+	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 18, 0,0,0) ).valueOf() );
+	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 19, 0,0,0) ).valueOf() );
+	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 23, 0,0,0) ).valueOf() );
+	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 24, 0,0,0) ).valueOf() );
+	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 30, 0,0,0) ).valueOf() );
+	vacation.add( new Date( Date.UTC( 2018, 10 - 1,  1, 0,0,0) ).valueOf() );
+	return vacation;
+}
+
+function loadWorkingDays( props )
+{
+	return new DayList( props );
 }
 
 /////////////////////////////////////////////////////////////////
@@ -56,14 +99,16 @@ function workingDaysBetweenDates(startDate, endDate) {
 function endOfMonthDate()
 {
 	var d = new Date();
-	var endOfMonth = new Date(1900 + d.getYear(), d.getMonth() + 1, 0);
-	endOfMonth.setHours(23,59,59,999);
+	var endOfMonth = new Date(Date.UTC( 1900 + d.getYear(), d.getMonth() + 1, 0, 23,59,59,999));
 	return endOfMonth;
 }
 
 function workDaysUntilEndOfMonth()
 {
-	return workingDaysBetweenDates( new Date(), endOfMonthDate() );	
+	var vacationDays = loadVacationDays();
+	var workingDays = loadWorkingDays( {startDate: new Date(), endDate: endOfMonthDate(), weekend: ['Fri', 'Sat']} );
+	workingDays.removeDays( vacationDays );
+	return workingDays.length();
 }
 
 var mysodexo_planner = {
@@ -73,7 +118,7 @@ var mysodexo_planner = {
 function displayPerDayBudget()
 {
 	var daily = mysodexo_planner['balance'] / workDaysUntilEndOfMonth();
-	
+
 	var dest = jQuery( jQuery( ".full-name" ).parent()[0].children[3] );
 	//dest.append( " / \u20AA" + daily.toFixed(2) + " \u05DC\u05D9\u05D5\u05DD" );
 	dest.text( "יש לך \u20AA" + mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום" );
@@ -82,7 +127,7 @@ function displayPerDayBudget()
 function scrapeBalance()
 {
 	var welcome_text = jQuery( ".full-name" ).parent().text();
-	
+
 	// First attempt: Look for numbers after the "New Israeli Shekel" sign
 	var re = new RegExp( '\u20AA([0-9]+(\.[0-9]+)?)' );
 	var matches = re.exec( welcome_text );
@@ -90,7 +135,7 @@ function scrapeBalance()
 	{
 		return matches[1];
 	}
-	
+
 
 	// Second attempt: Look for numbers that look like money:
 	//  1-5 digits, optionally followed by ".", followed by 1-2 digits
@@ -100,7 +145,7 @@ function scrapeBalance()
 	{
 		return matches[1];
 	}
-	
+
 	return null;
 }
 
@@ -127,7 +172,7 @@ function onload()
 }
 
 
-jQuery(document).ready(function() { 
+jQuery(document).ready(function() {
       onload();
 });
 
