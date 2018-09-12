@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><title>My Test Extension Options</title></head>
+<head>
+	<title>Options</title>
+	<link rel="stylesheet" href="jquery-ui.min.css" />
+	<link rel="stylesheet" href="jquery-ui.multidatespicker.css" />
+	<script src="jquery-1.8.2.js"></script>
+	<script src="jquery-ui.min.js"></script>
+	<script src="jquery-ui.multidatespicker.js"></script>
+</head>
 <body>
 
-Favorite color:
-<select id="color">
- <option value="red">red</option>
- <option value="green">green</option>
- <option value="blue">blue</option>
- <option value="yellow">yellow</option>
-</select>
-
-<label>
-  <input type="checkbox" id="like">
-  I like colors.
-</label>
+Choose what days you aren't working:
+<div id="vacation-days"></div>
 
 <div id="status"></div>
 <button id="save">Save</button>

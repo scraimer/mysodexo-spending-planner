@@ -14,7 +14,8 @@
 
    "permissions": [ 
       "https://www.mysodexo.co.il/*",
-      "tabs"
+      "tabs",
+		"storage" 
    ],
 	"options_ui": {
     	"page": "options.html",
