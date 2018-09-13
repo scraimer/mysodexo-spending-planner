@@ -76,25 +76,40 @@ DayList.prototype.add = function( date ) {
 	this.list.push( val - (val % millisecondsPerDay ) );
 }
 
-function loadVacationDays()
-{
-	// TODO: load from localStorage or an ICS file
-	var vacation = new DayList();
-	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 18, 0,0,0) ).valueOf() );
-	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 19, 0,0,0) ).valueOf() );
-	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 23, 0,0,0) ).valueOf() );
-	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 24, 0,0,0) ).valueOf() );
-	vacation.add( new Date( Date.UTC( 2018,  9 - 1, 30, 0,0,0) ).valueOf() );
-	vacation.add( new Date( Date.UTC( 2018, 10 - 1,  1, 0,0,0) ).valueOf() );
-	return vacation;
-}
-
 function loadWorkingDays( props )
 {
 	return new DayList( props );
 }
 
 /////////////////////////////////////////////////////////////////
+
+var mysodexo_planner = {
+	'balance': null,
+	vacations: null
+};
+
+function loadVacationDays()
+{
+	var vacation = new DayList();
+	if( mysodexo_planner.vacations ) {
+		mysodexo_planner.vacations.forEach(
+			date => vacation.add( date ) );
+	}
+	return vacation;
+}
+
+function onMessage( message, sender, callback )
+{
+	if( message && message.type && message.type == "config-changed" )
+	{
+		if( message.vacations )
+		{
+			mysodexo_planner.vacations = message.vacations;
+		}
+		console.log("Configuration changed. Updating daily budget");
+		keepTryingToScrapeBalance();
+	}
+}
 
 function endOfMonthDate()
 {
@@ -110,10 +125,6 @@ function workDaysUntilEndOfMonth()
 	workingDays.removeDays( vacationDays );
 	return workingDays.length();
 }
-
-var mysodexo_planner = {
-	'balance': null
-};
 
 function displayPerDayBudget()
 {
@@ -168,11 +179,18 @@ function keepTryingToScrapeBalance()
 function onload()
 {
 	console.log("mysodexo-planner.js loaded");
-	keepTryingToScrapeBalance();
+
+  	chrome.storage.sync.get({
+     	vacations: [] // TODO: add defaults
+  	}, function(items) {
+		mysodexo_planner.vacations = items.vacations;
+		setTimeout( keepTryingToScrapeBalance, 250 );
+  	});
 }
 
 
 jQuery(document).ready(function() {
       onload();
+		chrome.runtime.onMessage.addListener( onMessage );
 });
 
