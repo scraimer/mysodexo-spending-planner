@@ -40,32 +40,13 @@ document.getElementById('save').addEventListener('click',
     save_options);
 
 function after_options() {
-	/*
-	let vacationDays = [
-		new Date( Date.UTC( 2018,  9 - 1, 18, 0,0,0) ),
-		new Date( Date.UTC( 2018,  9 - 1, 19, 0,0,0) ),
-		new Date( Date.UTC( 2018,  9 - 1, 23, 0,0,0) ),
-		new Date( Date.UTC( 2018,  9 - 1, 24, 0,0,0) ),
-		new Date( Date.UTC( 2018,  9 - 1, 30, 0,0,0) ),
-		new Date( Date.UTC( 2018, 10 - 1,  1, 0,0,0) ),
-	];
-*/
 	let mdp = $('#vacation-days'); 
 	mdp.multiDatesPicker({
-//		addDates: vacationDays,
 		addDates: JSON.parse("[" + my_options.vacations + "]"),
 		numberOfMonths: 2,
 		dateFormat: '@', // Output unix timestamps (ms since 1970)
 		onSelect: function() { console.log( $('#vacation-days').multiDatesPicker('value') ); }
 	});
-	
-	/*
-	  let mdp = $('#vacation-days');
-	  mdp.multiDatesPicker('resetDates');
-	  mdp.multiDatesPicker('value', items.vacations);
-	  mdp.multiDatesPicker('toggleDate', 0 );
-	  mdp.multiDatesPicker('toggleDate', 0 );
-	*/
 }
 
 $( function() {
