@@ -1,16 +1,16 @@
 // Saves options to chrome.storage
 function save_options() {
-  var vacationDays = $('#vacation-days').multiDatesPicker('value');
-  chrome.storage.sync.set({
-    vacations: vacationDays
-  }, function() {
-    // Update status to let user know options were saved.
-    var status = document.getElementById('status');
-    status.textContent = 'Options saved.';
-    setTimeout(function() {
-      status.textContent = '';
-    }, 750);
-  });
+  	var vacationDays = $('#vacation-days').multiDatesPicker('value');
+  	chrome.storage.sync.set({
+    	vacations: vacationDays
+  	}, function() {
+    	// Update status to let user know options were saved.
+    	var status = document.getElementById('status');
+    	status.textContent = 'Options saved.';
+    	setTimeout(function() {
+      	status.textContent = '';
+    	}, 750);
+  	});
 }
 
 var my_options = {};
@@ -27,17 +27,17 @@ function restore_options(callback) {
 		new Date( Date.UTC( 2018,  9 - 1, 30, 0,0,0) ),
 		new Date( Date.UTC( 2018, 10 - 1,  1, 0,0,0) ),
 	];
-  // Use default value color = 'red' and likesColor = true.
-  chrome.storage.sync.get({
-     vacations: vacationDays
-  }, function(items) {
-	  my_options = Object.assign({}, items);
-  	  callback();
-  });
+  	// Use default value color = 'red' and likesColor = true.
+  	chrome.storage.sync.get({
+     	vacations: vacationDays
+  	}, function(items) {
+	  	my_options = Object.assign({}, items);
+  	  	callback();
+  	});
 
 }
 document.getElementById('save').addEventListener('click',
-    save_options);
+   save_options);
 
 function after_options() {
 	let mdp = $('#vacation-days'); 
