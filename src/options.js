@@ -35,16 +35,17 @@ function restore_options(callback) {
 	];
 	let vacations = vacationDays.map( date => date.valueOf() );
 
-  	chrome.storage.sync.get({
-     	vacations: vacations
-  	}, function(items) {
-	  	my_options = Object.assign({}, items);
+  	chrome.storage.sync.get(
+     	['vacations'],
+  		function(items) {
+	  		my_options = Object.assign({}, items);
 
-		// Send config update to extension
-		chrome.runtime.sendMessage({type: "config-changed", config: {vacations: items.vacations}});
+			// Send config update to extension
+			chrome.runtime.sendMessage({type: "config-changed", config: {vacations: items.vacations}});
 
-  	  	callback();
-  	});
+  		  	callback();
+  		}
+	);
 
 }
 document.getElementById('save').addEventListener('click',
