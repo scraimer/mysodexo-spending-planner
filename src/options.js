@@ -53,12 +53,18 @@ document.getElementById('save').addEventListener('click',
 
 function after_options() {
 	let mdp = $('#vacation-days');
-	mdp.multiDatesPicker({
-		addDates: JSON.parse("[" + my_options.vacations + "]"),
+	let params = {
 		numberOfMonths: 2,
 		dateFormat: '@', // Output unix timestamps (ms since 1970)
 		onSelect: function() { console.log( $('#vacation-days').multiDatesPicker('value') ); }
-	});
+	};
+	my_options.vacations = [];
+	if( my_options && my_options.vacations.length > 0 )
+	{
+		// We must not use 'addDates' if the array is empty. It prevents the entire UI from working
+		params.addDates = JSON.parse("[" + my_options.vacations + "]");
+	}
+	mdp.multiDatesPicker(params);
 }
 
 $( function() {
