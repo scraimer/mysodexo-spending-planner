@@ -135,9 +135,14 @@ function displayPerDayBudget()
 	dest.text( "יש לך \u20AA" + mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום" );
 }
 
+function findContainerParent()
+{
+	return jQuery( ".full-name" ).parent();
+}
+
 function scrapeBalance()
 {
-	var welcome_text = jQuery( ".full-name" ).parent().text();
+	var welcome_text = findContainerParent().text();
 
 	// First attempt: Look for numbers after the "New Israeli Shekel" sign
 	var re = new RegExp( '\u20AA([0-9]+(\.[0-9]+)?)' );
@@ -168,6 +173,8 @@ function keepTryingToScrapeBalance()
 		console.log( "Balance found: " + balance );
 		mysodexo_planner['balance'] = balance;
 		displayPerDayBudget();
+		
+		init_mutation_observer();
 	}
 	else
 	{
@@ -175,6 +182,60 @@ function keepTryingToScrapeBalance()
 		window.setTimeout( keepTryingToScrapeBalance, 1000 );
 	}
 }
+
+var observer = null;
+var balance_regex = new RegExp( /\b([0-9]{1,5}(?:\.[0-9]{1,2}))\b/ );
+	
+
+function disconnect_mutation_observer()
+{
+	if( observer )
+	{
+		observer.disconnect();
+		observer = null;
+	}
+}
+
+function init_mutation_observer()
+{
+	var dom_container = findContainerParent();
+	if( dom_container == null )
+	{
+		return false;
+	}
+	dom_container = dom_container[0];
+
+	const mutationConfig = { attributes: false, childList: true, subtree: true, characterData: false,
+    	characterDataOldValue: false};
+
+	var onMutate = function(mutationsList) {
+    	mutationsList.forEach(mutation => {
+			console.log( mutation );
+			if( mutation.type != "childList" )
+			{
+				return;
+			}
+			mutation.addedNodes.forEach(newNode => {
+				if( newNode.nodeType == Node.TEXT_NODE )
+				{
+					var matches = balance_regex.exec( newNode.nodeValue );
+					if( matches && matches.length >= 1 )
+					{
+						mysodexo_planner['balance'] = matches[0];
+						
+						disconnect_mutation_observer();
+						displayPerDayBudget();
+						init_mutation_observer();
+					}
+				}
+			});
+    	});
+	};
+	
+	observer = new MutationObserver(onMutate);
+	observer.observe(dom_container, mutationConfig);	
+}
+
 
 function onload()
 {
