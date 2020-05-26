@@ -58,7 +58,7 @@ function after_options() {
 		dateFormat: '@', // Output unix timestamps (ms since 1970)
 		onSelect: function() { console.log( $('#vacation-days').multiDatesPicker('value') ); }
 	};
-	if( my_options && my_options.vacations.length > 0 )
+	if( my_options && my_options.vacations && my_options.vacations.length > 0 )
 	{
 		// We must not use 'addDates' if the array is empty. It prevents the entire UI from working
 		params.addDates = JSON.parse("[" + my_options.vacations + "]");
