@@ -1,6 +1,6 @@
 {
    "name": "Daily Budget of Cibus Sodexo",
-   "version": "0.0.8",
+   "version": "0.0.9",
    "manifest_version" : 2,
 
    "description": "Reports daily balance for Cibus MySodex",
