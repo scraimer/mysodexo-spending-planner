@@ -129,18 +129,23 @@ function workDaysUntilEndOfMonth()
 function displayPerDayBudget()
 {
 	var daily = mysodexo_planner['balance'] / workDaysUntilEndOfMonth();
+	var content = mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום";
 
-	var dest = jQuery( jQuery( ".full-name" ).parent()[0].children[3] );
-	//dest.append( " / \u20AA" + daily.toFixed(2) + " \u05DC\u05D9\u05D5\u05DD" );
-	dest.text( "יש לך \u20AA" + mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום" );
+	// Up to 20200531:
+	//var content = "יש לך \u20AA" + mysodexo_planner['balance'] + ", או \u20AA" + daily.toFixed(2) + " ליום";
+	//var dest = jQuery( findContainerParent()[0].children[3] );
+	
+	var dest = jQuery( findContainerParent()[0].children[4] );
+	
+	dest.text( content );
 }
 
-function findContainerParent()
+function findContainerParent_before20200530()
 {
 	return jQuery( ".full-name" ).parent();
 }
 
-function scrapeBalance()
+function scrapeBalance_before20200530()
 {
 	var welcome_text = findContainerParent().text();
 
@@ -164,6 +169,51 @@ function scrapeBalance()
 
 	return null;
 }
+
+function findContainerParent()
+{
+	return jQuery( ".f-name" ).parent();
+}
+
+function scrapeBalance_after20200601()
+{
+	var welcome_text = findContainerParent().text();
+
+	// First attempt: Look for numbers after the "New Israeli Shekel" sign
+	var re = new RegExp( '\u20AA([0-9]+(\.[0-9]+)?)' );
+	var matches = re.exec( welcome_text );
+	if( matches && matches.length >= 2 )
+	{
+		return matches[1];
+	}
+
+
+	// Second attempt: Look for numbers that look like money:
+	//  1-5 digits, optionally followed by ".", followed by 1-2 digits
+	var re = new RegExp( /\b([0-9]{1,5}(?:\.[0-9]{1,2}))\b/ );
+	var matches = re.exec( welcome_text );
+	if( matches && matches.length >= 2 )
+	{
+		return matches[1];
+	}
+
+	return null;
+}
+
+function scrapeBalance()
+{
+	var balance = scrapeBalance_after20200601();
+	
+	// For users who haven't rolled over to the new version, use the old version
+	// scraping
+	if( balance == null )
+	{
+		balance = scrapeBalance_before20200530();
+	}
+	
+	return balance;
+}
+
 
 function keepTryingToScrapeBalance()
 {
