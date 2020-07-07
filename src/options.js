@@ -3,7 +3,10 @@ var my_options = {};
 // Saves options to chrome.storage
 function save_options() {
   	var vacationDays = $('#vacation-days').multiDatesPicker('value');
-	let vacations = JSON.parse("[" + vacationDays + "]");
+	let vacations = vacationDays.split(', ');
+	for( var i=0; i<vacations.length; ++i) {
+		vacations[i] = Date.parse( vacations[i] );
+	}
   	chrome.storage.sync.set({
     	vacations: vacations
   	}, function() {
@@ -55,7 +58,8 @@ function after_options() {
 	let mdp = $('#vacation-days');
 	let params = {
 		numberOfMonths: 2,
-		dateFormat: '@', // Output unix timestamps (ms since 1970)
+		 // Output in yy-mm-dd, since the unix timestamps ('@') screw up
+		dateFormat: 'yy-mm-dd',
 		onSelect: function() { console.log( $('#vacation-days').multiDatesPicker('value') ); }
 	};
 	if( my_options && my_options.vacations && my_options.vacations.length > 0 )
