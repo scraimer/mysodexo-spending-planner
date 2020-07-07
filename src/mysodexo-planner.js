@@ -260,7 +260,6 @@ function init_mutation_observer()
 
 	var onMutate = function(mutationsList) {
     	mutationsList.forEach(mutation => {
-			console.log( mutation );
 			if( mutation.type != "childList" )
 			{
 				return;
@@ -289,8 +288,6 @@ function init_mutation_observer()
 
 function onload()
 {
-	console.log("mysodexo-planner.js loaded");
-
   	chrome.storage.sync.get({
      	vacations: [] // TODO: add defaults
   	}, function(items) {
